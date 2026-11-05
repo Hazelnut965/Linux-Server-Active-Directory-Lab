@@ -1,23 +1,26 @@
 # Linux Server & Active Directory Administration Lab
 
-**Ubuntu Server 24.04 LTS | Samba Active Directory | DNS | Kerberos | SMB File Sharing**
+**Ubuntu Server 24.04.4 LTS | Samba Active Directory | DNS | Kerberos | Identity Management | SMB File Sharing**
 
 ## Project Overview
 
-This project demonstrates hands-on experience configuring, administering, and troubleshooting a Linux-based Active Directory environment using Ubuntu Server and Samba.
+This project documents the deployment, administration, and troubleshooting of a Linux-based Active Directory environment using Ubuntu Server and Samba.
 
-The lab simulates common IT Support, System Administration, and Identity and Access Management (IAM) responsibilities, including:
+The lab was designed to simulate real-world IT Support, Help Desk, and Junior System Administrator responsibilities, including user provisioning, password resets, authentication troubleshooting, security group administration, and shared-folder access control.
 
-- Linux server administration and configuration
-- Samba Active Directory Domain Controller management
-- DNS configuration and troubleshooting
-- Kerberos authentication and ticket verification
-- Active Directory user and security group management
-- Password resets and user account lifecycle administration
-- Secure SMB file sharing and group-based access control
-- Troubleshooting, verification, and technical documentation
+Rather than simply installing a server, I performed administrative tasks, investigated configuration problems, tested authentication, and verified security restrictions using authorized and unauthorized domain accounts.
 
-The project is organized into six practical case studies. Each case documents the objective, technical steps, screenshot evidence, and verified outcome.
+### Project Objectives
+
+- Configure an Ubuntu Server virtual machine.
+- Administer a Samba Active Directory Domain Controller.
+- Investigate DNS configuration and domain service discovery issues.
+- Verify Kerberos authentication.
+- Create and manage Active Directory users and security groups.
+- Perform account disabling, re-enabling, and password resets.
+- Configure an SMB departmental share.
+- Test group-based access restrictions and least-privilege controls.
+- Document troubleshooting procedures and verification results.
 
 ---
 
@@ -26,81 +29,118 @@ The project is organized into six practical case studies. Each case documents th
 | Component | Configuration |
 |---|---|
 | Host Machine | Apple Silicon Mac (M4) |
-| Virtualization | VMware Fusion |
-| Operating System | Ubuntu Server 24.04.4 LTS (ARM64) |
-| Domain Controller | Samba 4.19.5 |
+| Virtualization Platform | VMware Fusion |
+| Guest Operating System | Ubuntu Server 24.04.4 LTS (ARM64) |
+| Directory Service | Samba Active Directory Domain Controller |
+| Samba Version | 4.19.5 |
 | Server Hostname | dc01 |
 | Active Directory Domain | nishatlab.local |
 | Kerberos Realm | NISHATLAB.LOCAL |
-| Workgroup | NISHATLAB |
-| Network | VMware NAT |
+| NetBIOS Domain | NISHATLAB |
+| Network Configuration | VMware NAT |
 | Server IP Address | 192.168.204.130 |
-| DNS Service | Samba Internal DNS |
-| Authentication | Kerberos |
-| File Sharing | SMB/CIFS |
+| Internal DNS | Samba Internal DNS |
+| Authentication Protocol | Kerberos |
+| File Sharing Protocol | SMB/CIFS |
 
 ### Tools & Technologies
 
 - Ubuntu Server and Linux CLI
-- Samba Active Directory Domain Controller
-- Samba-tool and testparm
-- Kerberos (kinit, klist)
-- DNS utilities (host, resolvectl)
-- SMBClient
-- Netplan
-- systemd and journalctl
 - VMware Fusion
+- Samba Active Directory
+- `samba-tool`
+- `testparm`
+- Kerberos (`kinit`, `klist`)
+- DNS utilities (`host`, `resolvectl`)
+- Netplan
+- `systemctl` and `journalctl`
+- `smbclient`
+- Linux filesystem permissions
+
+## Case Study Summary
+
+| Case | Technical Focus | Result |
+|---|---|---|
+| 01 | Ubuntu Server & Active Directory Environment | Server environment established |
+| 02 | DNS Configuration & Troubleshooting | Internal AD DNS verified; external forwarding issues investigated |
+| 03 | Kerberos Authentication | Domain authentication verified |
+| 04 | User & Security Group Management | Domain users and groups created |
+| 05 | User Account Lifecycle Management | Account administration and authentication verified |
+| 06 | SMB File Sharing & Access Control | Authorized access succeeded; unauthorized access denied |
 
 ---
 
-# Case 01 — Ubuntu Server & Active Directory Environment
+## Case 01 — Ubuntu Server & Active Directory Environment
 
-## Objective
+### Objective
 
-Establish an Ubuntu Server virtual machine and configure Samba Active Directory services to provide centralized domain authentication and administration.
+Establish a virtualized Ubuntu Server environment capable of providing centralized Active Directory services.
 
-## Steps Performed
+### Environment Setup
 
-1. Installed Ubuntu Server 24.04.4 LTS in VMware Fusion.
-2. Configured the server hostname and VMware NAT networking.
-3. Installed and configured Samba Active Directory services.
-4. Established the domain `nishatlab.local`.
-5. Configured the Kerberos realm `NISHATLAB.LOCAL`.
-6. Verified the server environment and Samba configuration.
+1. Installed Ubuntu Server 24.04.4 LTS (ARM64) using VMware Fusion.
+2. Configured the virtual machine to use VMware NAT networking.
+3. Established the server hostname `dc01`.
+4. Configured Samba Active Directory Domain Controller services.
+5. Established the Active Directory domain `nishatlab.local`.
+6. Configured the Kerberos realm `NISHATLAB.LOCAL`.
+7. Verified the operating system and server configuration.
 
-## Verification Commands
+### Verification
+
+The following commands can be used to inspect the server environment:
 
 ```bash
 hostnamectl
-sudo testparm -s
+```
+
+```bash
 sudo systemctl status samba-ad-dc
 ```
 
-### Screenshot 01 — Ubuntu Server Version
+```bash
+sudo testparm -s
+```
+
+### Screenshot Evidence
+
+**Screenshot 01 — Ubuntu Server Version**
 
 ![Ubuntu Server Version](Screenshots/01-ubuntu-server-version.png)
 
-## Outcome
+### Outcome
 
-Established a virtualized Ubuntu Server environment for Active Directory administration, authentication testing, and network service configuration.
+Established an Ubuntu Server virtual machine for Active Directory administration, domain authentication, DNS troubleshooting, and SMB file sharing.
 
-**Skills Demonstrated:** Linux Server Administration, Virtualization, Samba Configuration, System Administration.
+The environment provided the foundation for the remaining five case studies.
+
+**Skills Demonstrated:** Linux Administration, Virtualization, Server Configuration, Active Directory Fundamentals.
 
 ---
 
-# Case 02 — Active Directory DNS Configuration & Troubleshooting
+## Case 02 — Active Directory DNS Configuration & Troubleshooting
 
-## Problem
+### Problem
 
-During the Samba Active Directory configuration, DNS resolution issues affected domain service discovery and authentication.
+During the Samba Active Directory configuration, DNS resolution issues affected domain service discovery.
 
-The troubleshooting process involved investigating Samba DNS errors, resolver settings, port 53 conflicts, Netplan configuration, and DNS forwarding behavior.
+Because Active Directory relies on DNS to locate domain controllers and authentication services, resolving these issues was important for reliable domain operations.
 
-## Troubleshooting Steps
+The investigation covered:
 
-### Step 1 — Investigated Samba DNS Errors
+- Samba DNS service errors
+- DNS resolver configuration
+- Port 53 conflicts
+- LDAP and Kerberos DNS records
+- Netplan DNS settings
+- Active Directory DNS zone records
+- External DNS forwarding
 
-Reviewed Samba service logs to identify DNS-related errors and service issues.
+### Troubleshooting Steps
+
+#### Step 1 — Investigated Samba DNS Errors
+
+Reviewed Samba service logs to identify DNS-related errors and possible service configuration problems.
 
 ```bash
 sudo journalctl -u samba-ad-dc --no-pager
@@ -110,37 +150,37 @@ sudo journalctl -u samba-ad-dc --no-pager
 
 ![Samba DNS Error Logs](Screenshots/02-samba-dns-error-logs.png)
 
-### Step 2 — Inspected DNS Resolver Configuration
+#### Step 2 — Examined DNS Resolver Settings
 
-Checked the server's DNS resolver configuration.
+Inspected the server's DNS resolver configuration to identify which DNS servers were being used.
 
 ```bash
 resolvectl status
 ```
 
-Reviewed the configured DNS servers and resolver behavior affecting Active Directory name resolution.
+Reviewed the relationship between the operating system's resolver settings and Samba's internal DNS service.
 
 **Screenshot 03 — Initial DNS Server Settings**
 
 ![Initial DNS Server Settings](Screenshots/03-initial-dns-server-settings.png)
 
-### Step 3 — Investigated DNS Port 53 Conflicts
+#### Step 3 — Investigated Port 53 Conflicts
 
-Examined active DNS listeners.
+Checked which services were listening on DNS port 53.
 
 ```bash
 sudo ss -tulpn | grep ':53'
 ```
 
-Investigated potential conflicts involving Samba and systemd-resolved.
+Investigated possible conflicts involving Samba DNS and `systemd-resolved`.
 
 **Screenshot 04 — DNS Port 53 Conflict**
 
 ![DNS Port 53 Conflict](Screenshots/04-dns-port-53-conflict.png)
 
-### Step 4 — Verified Active Directory LDAP DNS Records
+#### Step 4 — Verified Active Directory LDAP Records
 
-Tested LDAP service discovery using DNS SRV records.
+Tested whether the DNS service could resolve the LDAP SRV record used for domain controller discovery.
 
 ```bash
 host -t SRV _ldap._tcp.nishatlab.local ::1
@@ -150,9 +190,9 @@ host -t SRV _ldap._tcp.nishatlab.local ::1
 
 ![Active Directory LDAP DNS Record](Screenshots/05-active-directory-ldap-dns-record.png)
 
-### Step 5 — Verified Kerberos DNS Records
+#### Step 5 — Verified Kerberos DNS Records
 
-Tested Kerberos service discovery.
+Tested the Kerberos service discovery record.
 
 ```bash
 host -t SRV _kerberos._udp.nishatlab.local ::1
@@ -162,24 +202,27 @@ host -t SRV _kerberos._udp.nishatlab.local ::1
 
 ![Kerberos DNS Record](Screenshots/06-kerberos-dns-record.png)
 
-### Step 6 — Retested Internal DNS Resolution
+#### Step 6 — Retested Internal DNS Resolution
 
-Repeated DNS queries after investigating resolver configuration and Samba DNS settings.
+After investigating the DNS configuration, repeated internal DNS queries to verify domain controller and Kerberos record resolution.
 
 ```bash
 host -t A dc01.nishatlab.local ::1
+```
+
+```bash
 host -t SRV _kerberos._udp.nishatlab.local ::1
 ```
 
-**Screenshot 07 — Kerberos DNS Resolution Fixed**
+**Screenshot 07 — Kerberos DNS Resolution Verification**
 
-![Kerberos DNS Resolution Fixed](Screenshots/07-kerberos-dns-resolution-fixed.png)
+![Kerberos DNS Resolution Verification](Screenshots/07-kerberos-dns-resolution-fixed.png)
 
-### Step 7 — Reviewed Netplan DNS Configuration
+#### Step 7 — Reviewed Netplan Configuration
 
-Updated the Ubuntu network configuration to control DNS resolver behavior.
+Inspected and adjusted the Ubuntu network configuration to address DNS resolver behavior.
 
-Validated the Netplan configuration.
+Validated the Netplan configuration using:
 
 ```bash
 sudo netplan generate
@@ -189,24 +232,27 @@ sudo netplan generate
 
 ![Netplan DNS Configuration](Screenshots/08-netplan-dns-configuration.png)
 
-### Step 8 — Investigated External DNS Forwarding
+#### Step 8 — Investigated External DNS Forwarding
 
-Reviewed Samba DNS forwarding settings and tested external DNS resolution.
+Tested external DNS resolution through Samba and the upstream DNS server.
 
 ```bash
 host -t A google.com ::1
+```
+
+```bash
 host -t A google.com 192.168.204.2
 ```
+
+These tests helped distinguish problems with Samba's local forwarding behavior from upstream DNS resolution.
 
 **Screenshot 09 — Samba DNS Forwarding Test**
 
 ![Samba DNS Forwarding Test](Screenshots/09-samba-dns-forwarding-success.png)
 
-The tests helped distinguish Samba's local DNS behavior from upstream DNS resolution.
+External DNS forwarding through Samba remained inconsistent during testing. Successful upstream DNS resolution did not establish that Samba forwarding was consistently working.
 
-Some external DNS forwarding tests through Samba remained unsuccessful.
-
-### Step 9 — Verified Active Directory DNS Zone Records
+#### Step 9 — Verified Active Directory DNS Zone Records
 
 Queried the Active Directory DNS zone using Samba's administration tool.
 
@@ -214,7 +260,7 @@ Queried the Active Directory DNS zone using Samba's administration tool.
 samba-tool dns query dc01.nishatlab.local nishatlab.local @ ALL -U Administrator
 ```
 
-The output displayed DNS zone information, including:
+The DNS zone query displayed records including:
 
 - SOA record
 - NS record
@@ -225,7 +271,9 @@ The output displayed DNS zone information, including:
 
 ![Active Directory DNS Zone Verification](Screenshots/22-active-directory-dns-zone-verification.png)
 
-### Step 10 — Verified Samba DNS Forwarder Configuration
+This provided additional evidence that the internal Active Directory DNS zone was configured and accessible.
+
+#### Step 10 — Verified Samba DNS Forwarder Configuration
 
 Inspected the DNS forwarder configured in Samba.
 
@@ -233,7 +281,7 @@ Inspected the DNS forwarder configured in Samba.
 sudo samba-tool testparm --parameter-name="dns forwarder"
 ```
 
-The output confirmed:
+The configuration returned:
 
 ```text
 192.168.204.2
@@ -243,45 +291,56 @@ The output confirmed:
 
 ![Samba DNS Forwarder Configuration](Screenshots/23-samba-dns-forwarder-configuration.png)
 
-This confirmed the configured upstream DNS server, although it did not independently establish that forwarding through Samba was successful.
+This confirmed the configured upstream DNS forwarder. However, verifying the configuration value alone did not confirm successful external DNS forwarding.
 
-## Outcome
+### Root Cause / Findings
 
-Successfully verified internal Active Directory DNS records, including LDAP and Kerberos service discovery.
+The investigation identified DNS resolver configuration issues and potential port 53 conflicts that required troubleshooting.
 
-Demonstrated DNS troubleshooting through service logs, resolver inspection, port conflict investigation, Netplan configuration, DNS zone queries, and forwarder verification.
+Internal Active Directory DNS records were successfully verified after configuration adjustments.
 
-External DNS forwarding issues were investigated, with some tests remaining unsuccessful.
+External DNS forwarding remained a separate issue, with some queries through Samba continuing to fail despite successful direct queries to upstream DNS servers.
 
-## Skills Demonstrated
+### Verification Results
 
-- DNS troubleshooting
-- Active Directory DNS records
-- Linux networking
-- Netplan configuration
-- Service log analysis
-- Samba DNS administration
-- DNS forwarding diagnostics
+| Test | Result |
+|---|---|
+| LDAP SRV record lookup | Verified |
+| Kerberos SRV record lookup | Verified |
+| Domain Controller A record lookup | Verified |
+| Active Directory DNS zone query | Successful |
+| Samba DNS forwarder configuration | Verified |
+| External DNS forwarding through Samba | Inconsistent / unresolved |
+
+### Outcome
+
+Successfully verified internal Active Directory DNS functionality and service discovery records.
+
+Gained practical experience diagnosing Linux DNS configuration problems through log analysis, resolver inspection, network configuration, DNS queries, and Samba administration tools.
+
+**Skills Demonstrated:** DNS Troubleshooting, Linux Networking, Active Directory DNS, Service Discovery, Netplan, Log Analysis.
 
 ---
 
-# Case 03 — Kerberos Authentication
+## Case 03 — Kerberos Authentication
 
-## Objective
+### Objective
 
-Verify that Active Directory domain accounts could authenticate through Kerberos.
+Verify that the Samba Active Directory environment supports domain authentication using Kerberos.
 
-## Steps Performed
+### Steps Performed
 
-### Step 1 — Authenticated the Domain Administrator
+#### Step 1 — Requested a Kerberos Ticket
 
-Requested a Kerberos Ticket Granting Ticket (TGT).
+Authenticated using the domain Administrator account.
 
 ```bash
 kinit Administrator@NISHATLAB.LOCAL
 ```
 
-### Step 2 — Verified Successful Authentication
+Kerberos was used to request a Ticket Granting Ticket (TGT) from the domain's authentication service.
+
+#### Step 2 — Verified Authentication
 
 Inspected the Kerberos ticket cache.
 
@@ -293,9 +352,9 @@ klist
 
 ![Kerberos Authentication Success](Screenshots/10-kerberos-authentication-success.png)
 
-### Step 3 — Verified Kerberos Ticket Information
+#### Step 3 — Examined Kerberos Ticket Information
 
-Reviewed the authenticated principal and ticket-granting service.
+Reviewed the ticket information, including the authenticated principal and ticket-granting service.
 
 ```bash
 klist
@@ -305,37 +364,41 @@ klist
 
 ![Kerberos Authentication Verification](Screenshots/11-kerberos-authentication-verification.png)
 
-## Outcome
+### Verification Results
 
-Successfully demonstrated Kerberos authentication and ticket verification against the Samba Active Directory Domain Controller.
+| Test | Result |
+|---|---|
+| Administrator Kerberos authentication | Successful |
+| Kerberos ticket request | Successful |
+| Ticket cache inspection | Verified |
 
-## Skills Demonstrated
+### Outcome
 
-- Kerberos authentication
-- Active Directory authentication
-- Identity verification
-- Authentication troubleshooting
-- Ticket validation
+Successfully authenticated a domain account using Kerberos and verified the resulting authentication ticket.
+
+This demonstrated the relationship between Active Directory, DNS service discovery, and Kerberos authentication.
+
+**Skills Demonstrated:** Kerberos, Domain Authentication, Identity Verification, Authentication Troubleshooting.
 
 ---
 
-# Case 04 — Active Directory User & Security Group Management
+## Case 04 — Active Directory User & Security Group Management
 
-## Objective
+### Objective
 
-Perform common IT Support and System Administration tasks involving domain user provisioning and security group administration.
+Simulate routine IT Support responsibilities involving Active Directory user provisioning and security group administration.
 
-## Steps Performed
+### Steps Performed
 
-### Step 1 — Created a Domain User
+#### Step 1 — Created a Domain User
 
-Created a standard Active Directory user account named `sarah`.
+Created a standard domain user named `sarah`.
 
 ```bash
 sudo samba-tool user create sarah
 ```
 
-Verified the account.
+Verified the account details.
 
 ```bash
 sudo samba-tool user show sarah
@@ -345,9 +408,9 @@ sudo samba-tool user show sarah
 
 ![Active Directory User Creation](Screenshots/12-active-directory-user-creation.png)
 
-### Step 2 — Created an Active Directory Security Group
+#### Step 2 — Created a Security Group
 
-Created a security group named `IT-Support`.
+Created an Active Directory security group named `IT-Support`.
 
 ```bash
 sudo samba-tool group add IT-Support
@@ -357,51 +420,61 @@ sudo samba-tool group add IT-Support
 
 ![Active Directory Security Group](Screenshots/13-active-directory-security-group.png)
 
-### Step 3 — Added the User to the Security Group
+#### Step 3 — Assigned Group Membership
 
-Added Sarah to the IT-Support group.
+Added Sarah to the IT-Support security group.
 
 ```bash
 sudo samba-tool group addmembers IT-Support sarah
 ```
 
-### Step 4 — Verified Security Group Membership
+#### Step 4 — Verified Group Membership
+
+Listed the group's members.
 
 ```bash
 sudo samba-tool group listmembers IT-Support
 ```
 
-The output confirmed that Sarah belonged to the IT-Support security group.
-
 **Screenshot 14 — Security Group Membership**
 
 ![Security Group Membership](Screenshots/14-security-group-membership.png)
 
-## Outcome
+### Verification Results
 
-Successfully created and managed Active Directory user accounts and security groups.
+| Test | Result |
+|---|---|
+| Domain user creation | Successful |
+| User account lookup | Successful |
+| Security group creation | Successful |
+| Group membership assignment | Successful |
+| Group membership verification | Successful |
 
-The IT-Support group was subsequently used to control access to a departmental network share.
+### Outcome
 
-## Skills Demonstrated
+Successfully created an Active Directory user, configured a security group, and verified group membership.
 
-- Active Directory user provisioning
-- Security group administration
-- Identity and Access Management (IAM)
-- Group membership verification
-- Group-based access management
+The IT-Support security group was later used to enforce access restrictions on an SMB departmental share.
+
+**Skills Demonstrated:** Active Directory Administration, User Provisioning, Security Groups, IAM, Group Membership Management.
 
 ---
 
-# Case 05 — Active Directory User Account Lifecycle Management
+## Case 05 — Active Directory User Account Lifecycle Management
 
-## Objective
+### Objective
 
-Simulate common Help Desk account administration responsibilities, including disabling accounts, re-enabling accounts, resetting passwords, and verifying authentication.
+Simulate common Help Desk account administration tasks involving account disabling, re-enabling, password resets, and authentication verification.
 
-## Steps Performed
+### Scenario
 
-### Step 1 — Disabled a Domain User Account
+A domain user's account requires administrative changes during its lifecycle.
+
+These actions represent routine identity management responsibilities performed by IT Support teams.
+
+### Steps Performed
+
+#### Step 1 — Disabled the User Account
 
 Disabled Sarah's Active Directory account.
 
@@ -409,104 +482,114 @@ Disabled Sarah's Active Directory account.
 sudo samba-tool user disable sarah
 ```
 
-Verified the disabled account status.
+Inspected the account status to verify the change.
 
 **Screenshot 15 — User Account Disabled**
 
 ![User Account Disabled](Screenshots/15-user-account-disabled.png)
 
-### Step 2 — Re-enabled the User Account
+#### Step 2 — Re-enabled the User Account
 
-Re-enabled the account.
+Restored the account to an enabled state.
 
 ```bash
 sudo samba-tool user enable sarah
 ```
 
-Verified that the account was active again.
+Verified the updated account status.
 
 **Screenshot 16 — User Account Re-enabled**
 
 ![User Account Re-enabled](Screenshots/16-user-account-reenabled.png)
 
-### Step 3 — Reset the User Password
+#### Step 3 — Reset the User Password
 
-Performed a password reset for the domain account.
+Performed an administrative password reset.
 
 ```bash
-sudo samba-tool user setpassword sarah -H /var/lib/samba/private/sam.ldb
+sudo samba-tool user setpassword sarah
 ```
-
-Confirmed successful password reset.
 
 **Screenshot 17 — User Password Reset**
 
 ![User Password Reset](Screenshots/17-user-password-reset.png)
 
-### Step 4 — Verified Kerberos Authentication
+#### Step 4 — Verified Authentication
 
-Tested authentication using the updated credentials.
+Tested authentication using Sarah's updated credentials.
 
 ```bash
 kinit sarah@NISHATLAB.LOCAL
-klist
 ```
 
-Verified that the account successfully obtained a Kerberos ticket.
+Checked the resulting Kerberos ticket.
+
+```bash
+klist
+```
 
 **Screenshot 18 — User Kerberos Authentication**
 
 ![User Kerberos Authentication](Screenshots/18-user-kerberos-authentication.png)
 
-## Outcome
+### Verification Results
 
-Successfully demonstrated user account disabling, re-enabling, password resetting, and Kerberos authentication verification.
+| Administrative Task | Result |
+|---|---|
+| Disable domain user | Successful |
+| Re-enable domain user | Successful |
+| Reset user password | Successful |
+| Authenticate with updated credentials | Successful |
+| Verify Kerberos ticket | Successful |
 
-These tasks simulate common account management requests handled by IT Support and Help Desk teams.
+### Outcome
 
-## Skills Demonstrated
+Successfully demonstrated account lifecycle management, including disabling and restoring a domain account, resetting its password, and verifying authentication.
 
-- User account lifecycle management
-- Help Desk account administration
-- Password resets
-- Identity and Access Management
-- Kerberos authentication
-- Account status verification
+These procedures reflect common IT Support and Help Desk account management responsibilities.
+
+**Skills Demonstrated:** Account Lifecycle Management, Password Resets, IAM, Help Desk Administration, Kerberos Authentication.
 
 ---
 
-# Case 06 — Secure SMB File Sharing & Access Control
+## Case 06 — Secure SMB File Sharing & Access Control
 
-## Objective
+### Objective
 
-Configure a departmental network share and restrict access using Active Directory security group membership.
+Configure an SMB departmental file share and restrict access using Active Directory security group membership.
 
-## Scenario
+### Scenario
 
-An IT department requires a shared folder accessible only to authorized members of the IT-Support security group.
+An IT department requires a shared network folder that only authorized IT-Support group members can access.
 
-Two domain accounts were used to validate access restrictions.
+Two domain users were used to test the security configuration.
 
-| User | Security Group Membership | Expected Access |
+| Domain User | IT-Support Membership | Expected Access |
 |---|---|---|
-| Sarah | IT-Support | Allowed |
+| Sarah | Member | Allowed |
 | James | Not a member | Denied |
 
-## Steps Performed
+### Steps Performed
 
-### Step 1 — Created the Shared Directory
+#### Step 1 — Created the Shared Directory
 
-Created a departmental directory.
+Created the departmental directory on the Ubuntu Server.
 
 ```bash
 sudo mkdir -p /srv/samba/IT-Department
 ```
 
-Configured filesystem ownership and permissions to support group-based access restrictions.
+Configured Linux filesystem ownership and permissions to support controlled access to the directory.
 
-### Step 2 — Configured the Samba Network Share
+#### Step 2 — Configured the Samba Share
 
-Added the departmental share to `/etc/samba/smb.conf`.
+Added the departmental share configuration to:
+
+```text
+/etc/samba/smb.conf
+```
+
+Share configuration:
 
 ```ini
 [IT-Department]
@@ -519,7 +602,11 @@ Added the departmental share to `/etc/samba/smb.conf`.
     directory mask = 2770
 ```
 
-Validated the configuration.
+The `valid users` setting restricted access to members of the specified Active Directory security group.
+
+The configuration also defined file and directory creation permissions.
+
+Validated the Samba configuration.
 
 ```bash
 sudo testparm -s
@@ -529,21 +616,21 @@ sudo testparm -s
 
 ![Samba File Share Configuration](Screenshots/19-samba-file-share-configuration.png)
 
-### Step 3 — Tested Authorized Access
+#### Step 3 — Tested Authorized User Access
 
-Connected to the departmental share using Sarah's domain account.
+Attempted to connect to the departmental share using Sarah's domain account.
 
 ```bash
 smbclient //127.0.0.1/IT-Department -U 'NISHATLAB\sarah'
 ```
 
-Uploaded a test file.
+After successfully connecting, uploaded a test file.
 
 ```text
 put sarah-test.txt
 ```
 
-Verified the uploaded file using:
+Listed the share contents to verify the upload.
 
 ```text
 ls
@@ -553,17 +640,21 @@ ls
 
 ![Authorized File Share Access](Screenshots/20-authorized-file-share-access.png)
 
-### Step 4 — Tested Unauthorized Access
+The authorized account successfully accessed the share and uploaded the test file.
 
-Created a second domain account named `james`, without adding it to the IT-Support security group.
+#### Step 4 — Tested Unauthorized User Access
 
-Attempted to access the same share.
+Created a separate domain account named `james`.
+
+James was not added to the IT-Support security group.
+
+Attempted to access the departmental share.
 
 ```bash
 smbclient //127.0.0.1/IT-Department -U 'NISHATLAB\james'
 ```
 
-The server rejected the connection.
+The connection was rejected with:
 
 ```text
 NT_STATUS_ACCESS_DENIED
@@ -573,100 +664,120 @@ NT_STATUS_ACCESS_DENIED
 
 ![Unauthorized Share Access Denied](Screenshots/21-unauthorized-share-access-denied.png)
 
-## Verification Results
+### Root Cause / Findings
 
-| Test | Result |
+The share's access restrictions were based on Active Directory security group membership.
+
+Sarah was authorized through her membership in the IT-Support group, while James did not have the required membership.
+
+The results demonstrated the distinction between authenticating as a domain user and being authorized to access a protected resource.
+
+### Verification Results
+
+| Security Test | Result |
 |---|---|
-| Authorized user authentication | Successful |
+| Authorized domain user connection | Successful |
 | Authorized file upload | Successful |
 | Uploaded file verification | Successful |
 | Unauthorized user connection | Access denied |
-| Security group membership | Verified |
+| Group-based access restriction | Verified |
 
-## Outcome
+### Outcome
 
-Successfully implemented group-based access control using Samba Active Directory security groups and Linux filesystem permissions.
+Successfully configured an SMB departmental share with Active Directory group-based access restrictions.
 
-The authorized user accessed the departmental share and uploaded a file, while an unauthorized domain user was denied access.
+Verified that an authorized user could connect and upload a file, while an unauthorized domain user received an access-denied response.
 
-This demonstrated practical application of the principle of least privilege.
+This demonstrated practical implementation of the **principle of least privilege**.
 
-## Skills Demonstrated
-
-- SMB/CIFS file sharing
-- Linux filesystem permissions
-- Active Directory security groups
-- Access control
-- Least privilege
-- Authentication and authorization testing
+**Skills Demonstrated:** SMB File Sharing, Active Directory Groups, Access Control, Linux Permissions, Least Privilege, Authorization Testing.
 
 ---
 
-# Key Skills Demonstrated
+## Key Technical Skills Demonstrated
 
-## Linux Server Administration
+### Linux Server Administration
 
-- Ubuntu Server administration
-- Linux command-line operations
-- System service configuration
-- Network configuration
-- Log analysis and troubleshooting
+- Ubuntu Server installation and configuration
+- Linux command-line administration
+- Service management and troubleshooting
+- Network configuration using Netplan
+- System log analysis
+- Virtual machine administration
 
-## Active Directory & Identity Management
+### Active Directory & Identity Management
 
 - Samba Active Directory Domain Controller
 - Domain user provisioning
-- Security group management
-- User account disabling and re-enabling
+- Security group creation and administration
+- Account disabling and re-enabling
 - Password resets
 - Kerberos authentication
+- Identity and Access Management (IAM)
 
-## Networking & Access Control
+### Networking & Troubleshooting
 
 - DNS A and SRV records
 - LDAP and Kerberos service discovery
-- DNS troubleshooting
-- SMB file sharing
+- DNS resolver configuration
+- DNS forwarding investigation
+- Port 53 conflict troubleshooting
+- Samba DNS administration
+- Network diagnostics
+
+### Security & Access Control
+
+- SMB/CIFS file sharing
+- Active Directory group-based permissions
 - Linux filesystem permissions
-- Group-based access restrictions
+- Authentication and authorization
+- Least-privilege access
 - Authorized and unauthorized access testing
 
-## IT Support & Troubleshooting
+---
 
-- Diagnosing authentication problems
-- Investigating DNS resolution failures
-- Validating configuration changes
-- Reviewing system logs
-- Documenting technical procedures and outcomes
+## Overall Project Outcome
+
+Built and administered a Linux-based Active Directory environment using Ubuntu Server and Samba.
+
+Across six case studies, the project demonstrated practical experience with:
+
+1. Establishing a virtualized Linux server environment.
+2. Troubleshooting Active Directory DNS and service discovery.
+3. Verifying Kerberos domain authentication.
+4. Creating and managing domain users and security groups.
+5. Performing user account lifecycle administration.
+6. Implementing and testing group-based SMB file sharing.
+
+The strongest verified results were successful internal Active Directory DNS resolution, Kerberos authentication, domain user administration, and SMB access control.
+
+External DNS forwarding through Samba remained inconsistent and is documented as an area for further troubleshooting.
+
+### Professional Relevance
+
+This project demonstrates foundational technical skills applicable to:
+
+- IT Support Specialist
+- Help Desk Technician
+- Desktop Support Technician
+- Junior System Administrator
+- Identity & Access Management Support
+- Entry-Level Infrastructure Support
 
 ---
 
-# Project Outcome
+## Future Improvements
 
-Successfully built and administered a Linux-based Active Directory environment using Ubuntu Server and Samba.
+Potential extensions to this lab include:
 
-The project demonstrates practical experience with:
-
-- Active Directory Domain Controller administration
-- DNS troubleshooting and service discovery
-- Kerberos authentication
-- User and security group management
-- Account lifecycle administration
-- SMB file sharing and access control
-- Linux server troubleshooting
-
-The lab provided hands-on experience with responsibilities relevant to **IT Support, Help Desk, Desktop Support, Junior System Administration, and Identity and Access Management** roles.
-
----
-
-# Future Improvements
-
-- Join a compatible Windows client to the Active Directory domain.
-- Explore graphical Active Directory administration tools.
-- Configure additional departmental network shares.
-- Implement file access auditing.
-- Explore automated user provisioning.
-- Add centralized logging and security monitoring.
+- Joining a compatible Windows client to the Active Directory domain.
+- Managing domain accounts using graphical Active Directory tools.
+- Exploring Group Policy administration in a Windows Server environment.
+- Investigating and resolving the remaining external DNS forwarding issue.
+- Configuring additional departmental SMB shares.
+- Implementing file access auditing.
+- Exploring automated user provisioning.
+- Adding centralized logging and security monitoring.
 
 ---
 
