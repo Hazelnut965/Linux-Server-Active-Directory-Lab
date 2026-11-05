@@ -1,5 +1,3 @@
-# Linux-Server-Active-Directory-Lab
-Hands-on Ubuntu Server and Samba Active Directory lab covering user management, Kerberos authentication, DNS troubleshooting, and SMB access control.  
 # Linux Server & Active Directory Administration Lab
 
 **Ubuntu Server 24.04 LTS | Samba Active Directory | DNS | Kerberos | SMB File Sharing**
