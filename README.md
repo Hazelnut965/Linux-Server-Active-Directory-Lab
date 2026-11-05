@@ -709,16 +709,6 @@ The strongest verified results were successful internal Active Directory DNS res
 
 External DNS forwarding through Samba remained inconsistent and is documented as an area for further investigation.
 
-### Professional Relevance
-
-This project demonstrates foundational skills applicable to:
-
-- IT Support Specialist
-- Help Desk Technician
-- Desktop Support Technician
-- Junior System Administrator
-- Identity & Access Management Support
-- Entry-Level Infrastructure Support
 
 ---
 
@@ -736,6 +726,6 @@ This project demonstrates foundational skills applicable to:
 
 **Project Type:** Personal Home Lab
 
-**Focus Areas:** IT Support | System Administration | Identity & Access Management | Cybersecurity
+
 
 *All activities were performed in a personal virtualized lab environment for educational and professional portfolio development.*
